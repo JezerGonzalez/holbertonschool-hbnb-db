@@ -2,13 +2,23 @@
 Amenity related functionality
 """
 
+from flask import app
 from src.models.base import Base
+from flask_sqlalchemy import SQLAlchemy
 
+db = SQLAlchemy(app)
 
 class Amenity(Base):
     """Amenity representation"""
 
     name: str
+
+    __tablename__ = "Amenities"
+
+    id = db.Column(db.String(36), primary_key=True)
+    name = db.Column(db.String(128), nullable=False)
+    created_at = db.Column(db.DateTime, default=db.func.current_timestamp())
+    updated_at = db.Column(db.DateTime, onupdate=db.func.current_timestamp())
 
     def __init__(self, name: str, **kw) -> None:
         """Dummy init"""
@@ -63,6 +73,15 @@ class PlaceAmenity(Base):
 
     place_id: str
     amenity_id: str
+
+    __tablename__ = "PlaceAmenities"
+
+    id = db.Column(db.String(36), primary_key=True)
+    place_id = db.Column(db.String(36), db.ForeignKey("place_id", nullable=False))
+    amenity_id = db.Column(db.String(36), db.ForeignKey("amenity_id", nullable=False))
+    created_at = db.Column(db.DateTime, default=db.func.current_timestamp())
+    updated_at = db.Column(db.DateTime, onupdate=db.func.current_timestamp())
+
 
     def __init__(self, place_id: str, amenity_id: str, **kw) -> None:
         """Dummy init"""

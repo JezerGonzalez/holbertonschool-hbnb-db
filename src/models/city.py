@@ -2,15 +2,26 @@
 City related functionality
 """
 
+from flask import app
 from src.models.base import Base
 from src.models.country import Country
+from flask_sqlalchemy import SQLAlchemy
 
+db = SQLAlchemy(app)
 
 class City(Base):
     """City representation"""
 
     name: str
     country_code: str
+
+    __tablename__ = 'City'
+
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(50), nullable=False)
+    country_code = db.Column(db.String(3), db.ForeignKey("Country.id"), nullable=False)
+    created_at = db.Column(db.DateTime, default=db.func.current_timestamp())
+    updated_at = db.Column(db.DateTime, onupdate=db.func.current_timestamp())
 
     def __init__(self, name: str, country_code: str, **kw) -> None:
         """Dummy init"""

@@ -2,22 +2,39 @@
 User related functionality
 """
 
+from flask import app
 from src.models.base import Base
+from flask_sqlalchemy import SQLAlchemy
+
+db = SQLAlchemy(app)
 
 
-class User(Base):
+class User(Base, db.Model):
     """User representation"""
-
     email: str
     first_name: str
     last_name: str
 
-    def __init__(self, email: str, first_name: str, last_name: str, **kw):
+    __tablename__ = "Users"
+
+    id = db.Column(db.String(36), primary_key=True)
+    first_name = db.Column(db.String(20), nullable=False)
+    last_name = db.Column(db.String(20), nullable=False)
+    email = db.Column(db.String(120), unique=True, nullable=False)
+    password = db.Column(db.String(128), nullable=False)
+    is_admin = db.Column(db.Boolean, default=False)
+    created_at = db.Column(db.DateTime, default=db.func.current_timestamp())
+    updated_at = db.Column(db.DateTime, onupdate=db.func.current_timestamp())
+
+    def __init__(self, email: str, first_name: str, last_name: str,
+                 password: str, is_admin: bool=False, **kw):
         """Dummy init"""
         super().__init__(**kw)
         self.email = email
         self.first_name = first_name
         self.last_name = last_name
+        self.password = password
+        self.is_admin = is_admin
 
     def __repr__(self) -> str:
         """Dummy repr"""

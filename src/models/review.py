@@ -2,18 +2,33 @@
 Review related functionality
 """
 
+from flask import app
 from src.models.base import Base
 from src.models.place import Place
 from src.models.user import User
+from flask_sqlalchemy import SQLAlchemy
+
+db = SQLAlchemy(app)
 
 
-class Review(Base):
+class Review(Base, db.Models):
     """Review representation"""
 
     place_id: str
     user_id: str
     comment: str
     rating: float
+
+    __tablename__ = "Reviews"
+
+    id = db.Column(db.String(36), primary_key=True)
+    place_id = db.Column(db.String(36), db.ForeignKey("place_id", nullable=False))
+    user_id = db.Column(db.String(36), db.ForeignKey("user_id", nullable=False))
+    comment = db.Column(db.String(420), nullable=False)
+    rating = db.Column(db.Float(), nullable=False)
+    created_at = db.Column(db.DateTime, default=db.func.current_timestamp())
+    updated_at = db.Column(db.DateTime, onupdate=db.func.current_timestamp())
+
 
     def __init__(
         self, place_id: str, user_id: str, comment: str, rating: float, **kw
