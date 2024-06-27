@@ -5,6 +5,7 @@ User related functionality
 from flask import app
 from src.models.base import Base
 from flask_sqlalchemy import SQLAlchemy
+import bcrypt
 
 db = SQLAlchemy(app)
 
@@ -50,6 +51,12 @@ class User(Base, db.Model):
             "created_at": self.created_at.isoformat(),
             "updated_at": self.updated_at.isoformat(),
         }
+
+    def set_password(self, password):
+        self.password_hash = bcrypt.generate_password_hash(password).decode('utf-8')
+
+    def check_password(self, password):
+        return bcrypt.check_password_hash(self.password_hash, password)
 
     @staticmethod
     def create(user: dict) -> "User":
