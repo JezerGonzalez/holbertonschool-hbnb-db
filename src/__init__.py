@@ -1,5 +1,9 @@
 """ Initialize the Flask app. """
 
+from flask_bcrypt import Bcrypt as bcrypt
+from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identity
+from flask import request, jsonify
+from src.models.user import User
 from flask import Flask
 from flask_cors import CORS
 from flask_sqlalchemy import SQLAlchemy
@@ -53,6 +57,21 @@ def register_routes(app: Flask) -> None:
     app.register_blueprint(amenities_bp)
 
 
+    @app.route('/login', methods=['POST'])
+    def login():
+        email = request.json.get('email', None)
+        password = request.json.get('password', None)
+        user = User.query.filter_by(email=email).first()
+        if user and bcrypt.check_password_hash(user.password, password):
+            access_token = create_access_token(identity=email)
+            return jsonify(access_token=access_token), 200
+
+    @app.route('/protected', methods=['GET'])
+    @jwt_required()
+    def protected():
+        current_user = get_jwt_identity()
+        return jsonify(logged_in_as=current_user), 200
+
 def register_handlers(app: Flask) -> None:
     """Register the error handlers for the Flask app."""
     app.errorhandler(404)(lambda e: (
@@ -64,3 +83,5 @@ def register_handlers(app: Flask) -> None:
             {"error": "Bad request", "message": str(e)}, 400
         )
     )
+
+    return 'Wrong username or password', 401
