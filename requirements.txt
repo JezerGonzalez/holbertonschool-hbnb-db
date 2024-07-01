@@ -5,3 +5,5 @@ Flask-SQLAlchemy
 gunicorn
 Flask-JWT-Extended
 Flask_bcrypt
+Alembic
+MySQL
