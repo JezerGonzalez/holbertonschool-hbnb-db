@@ -1,34 +1,31 @@
 """
 Review related functionality
 """
-
-from flask import app
+import uuid
 from src.models.base import Base
 from src.models.place import Place
 from src.models.user import User
 from flask_sqlalchemy import SQLAlchemy
 
-db = SQLAlchemy(app)
+db = SQLAlchemy()
 
-
-class Review(Base, db.Models):
+class Review(Base):
     """Review representation"""
 
     place_id: str
     user_id: str
     comment: str
     rating: float
-
+    
     __tablename__ = "Reviews"
-
+    
     id = db.Column(db.String(36), primary_key=True)
-    place_id = db.Column(db.String(36), db.ForeignKey("place_id", nullable=False))
-    user_id = db.Column(db.String(36), db.ForeignKey("user_id", nullable=False))
+    place_id = db.Column(db.String(36), db.ForeignKey("place.id"), nullable=False)
+    user_id = db.Column(db.String(36), db.ForeignKey("user.id"), nullable=False)
     comment = db.Column(db.String(420), nullable=False)
-    rating = db.Column(db.Float(), nullable=False)
+    ratng = db.Column(db.Float(), nullable=False)
     created_at = db.Column(db.DateTime, default=db.func.current_timestamp())
     updated_at = db.Column(db.DateTime, onupdate=db.func.current_timestamp())
-
 
     def __init__(
         self, place_id: str, user_id: str, comment: str, rating: float, **kw
@@ -72,6 +69,9 @@ class Review(Base, db.Models):
         if not place:
             raise ValueError(f"Place with ID {data['place_id']} not found")
 
+        if data.user_id == place.host_id:
+            raise ValueError("Cannot review own place")
+        
         new_review = Review(**data)
 
         repo.save(new_review)
@@ -87,6 +87,9 @@ class Review(Base, db.Models):
 
         if not review:
             raise ValueError("Review not found")
+    
+        if data.user_id != review.user_id:       #Checks if og poster is the new poster
+            raise ValueError("Review cannot be edited by a different poster")
 
         for key, value in data.items():
             setattr(review, key, value)

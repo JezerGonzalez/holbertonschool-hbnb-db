@@ -1,6 +1,5 @@
 flask
 flask-cors
-SQLAlchemy
 Flask-SQLAlchemy
 gunicorn
 Flask-JWT-Extended

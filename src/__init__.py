@@ -2,9 +2,8 @@
 
 from flask_bcrypt import Bcrypt as bcrypt
 from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identity
-from flask import request, jsonify
+from flask import Flask, request, jsonify
 from src.models.user import User
-from flask import Flask
 from flask_cors import CORS
 from flask_sqlalchemy import SQLAlchemy
 
@@ -47,6 +46,7 @@ def register_routes(app: Flask) -> None:
     from src.routes.places import places_bp
     from src.routes.amenities import amenities_bp
     from src.routes.reviews import reviews_bp
+    from src.routes.admin import admin_bp
 
     # Register the blueprints in the app
     app.register_blueprint(users_bp)
@@ -55,6 +55,7 @@ def register_routes(app: Flask) -> None:
     app.register_blueprint(places_bp)
     app.register_blueprint(reviews_bp)
     app.register_blueprint(amenities_bp)
+    app.register_blueprint(admin_bp)
 
 
     @app.route('/login', methods=['POST'])
